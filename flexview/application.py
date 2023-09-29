@@ -15,7 +15,8 @@ class Application(tk.Tk):
         self.geometry("800x600")
 
         self.callbacks = {
-            'get_text': self.get_text
+            'get_text': self.get_text,
+            'update_title_fontsize': self.update_title_fontsize,
         }
 
         self.datamodel = DataModel()
@@ -32,3 +33,15 @@ class Application(tk.Tk):
         """Used to request text data from the model."""
 
         return self.datamodel.long_text
+    
+    def update_title_fontsize(self, width):
+        """
+        Used to update title font size when window changes.
+        
+        :arguments
+        ----------
+        width: int
+            width of screen in pixels
+        """
+
+        self.stylesheet.update_title_fontsize(width)

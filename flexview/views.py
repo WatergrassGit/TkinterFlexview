@@ -48,3 +48,17 @@ class MainView(ttk.Frame):
         # set of relative widths for media_frame contents
         self.media_frame.grid_columnconfigure(0, weight=1)
         self.media_frame.grid_columnconfigure(1, weight=2)
+
+        # Set up events
+        self.title.bind("<Configure>", self.update_fontsize)
+        self.text.bind("<Configure>", self.update_wraplength)
+
+    def update_fontsize(self, event):
+        """Update title font size based on widget width."""
+
+        self.callbacks['update_title_fontsize'](event.width)
+
+    def update_wraplength(self, event):
+        """Update wraplength based on widget width."""
+
+        self.text.config(wraplength=event.width)
