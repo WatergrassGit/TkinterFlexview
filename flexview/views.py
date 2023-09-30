@@ -50,8 +50,28 @@ class MainView(ttk.Frame):
         self.media_frame.grid_columnconfigure(1, weight=2)
 
         # Set up events
+        self.bind("<Configure>", self.responsive_page)
         self.title.bind("<Configure>", self.update_fontsize)
         self.text.bind("<Configure>", self.update_wraplength)
+
+    def responsive_page(self, event):
+        # Regular / Wide view
+        if self.winfo_width() >= 600:
+            self.initial_frame.grid(row=0, column=0, sticky='nsew')
+            self.final_frame.grid(row=0, column=1, sticky='nsew')
+            
+            # set of relative widths for media_frame contents
+            self.media_frame.grid_columnconfigure(0, weight=1)
+            self.media_frame.grid_columnconfigure(1, weight=2)
+
+        # Mobile / Thin view
+        else:
+            self.initial_frame.grid(row=0, column=0, sticky='nsew')
+            self.final_frame.grid(row=1, column=0, sticky='nsew')
+
+            # set of relative widths for media_frame contents
+            self.media_frame.grid_columnconfigure(0, weight=1)
+            self.media_frame.grid_columnconfigure(1, weight=0)
 
     def update_fontsize(self, event):
         """Update title font size based on widget width."""
