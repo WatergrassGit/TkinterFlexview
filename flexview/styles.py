@@ -10,10 +10,10 @@ class StyleSheet(ttk.Style):
         super().__init__(*args, **kwargs)
 
         # Styles for mainview title widget
-        self.configure('title.TLabel', font=('Helvetica', 20), background='red')
+        self.configure('title.TLabel', font=('Helvetica', 20))
 
         # Styles for mainview text widget
-        self.configure('text.TLabel', font=("Helvetica", 11), background='green')
+        self.configure('text.TLabel', font=("Helvetica", 11))
 
         # Styles for mainview media_frame widget
         self.configure('media.TFrame', background='black')

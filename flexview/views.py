@@ -35,15 +35,15 @@ class MainView(ttk.Frame):
         self.grid_columnconfigure(0, weight=1)
 
         # Set up grid for mainview content
-        self.title.grid(row=0, column=0, sticky='nsew')
-        self.text.grid(row=1, column=0, sticky='nsew')
+        self.title.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
+        self.text.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
         self.media_frame.grid(row=2, column=0, sticky='nsew')
 
         # Add items to media_frame widget
         self.initial_frame = ttk.Frame(self.media_frame, style='initial.TFrame', height=200)
-        self.initial_frame.grid(row=0, column=0, sticky='nsew')
+        self.initial_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
         self.final_frame = ttk.Frame(self.media_frame, style='final.TFrame', height=200)
-        self.final_frame.grid(row=0, column=1, sticky='nsew')
+        self.final_frame.grid(row=0, column=1, sticky='nsew', padx=10, pady=10)
 
         # set of relative widths for media_frame contents
         self.media_frame.grid_columnconfigure(0, weight=1)
@@ -57,8 +57,8 @@ class MainView(ttk.Frame):
     def responsive_page(self, event):
         # Regular / Wide view
         if self.winfo_width() >= 600:
-            self.initial_frame.grid(row=0, column=0, sticky='nsew')
-            self.final_frame.grid(row=0, column=1, sticky='nsew')
+            self.initial_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
+            self.final_frame.grid(row=0, column=1, sticky='nsew', padx=10, pady=10)
             
             # set of relative widths for media_frame contents
             self.media_frame.grid_columnconfigure(0, weight=1)
@@ -66,8 +66,8 @@ class MainView(ttk.Frame):
 
         # Mobile / Thin view
         else:
-            self.initial_frame.grid(row=0, column=0, sticky='nsew')
-            self.final_frame.grid(row=1, column=0, sticky='nsew')
+            self.initial_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
+            self.final_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
 
             # set of relative widths for media_frame contents
             self.media_frame.grid_columnconfigure(0, weight=1)
@@ -76,9 +76,9 @@ class MainView(ttk.Frame):
     def update_fontsize(self, event):
         """Update title font size based on widget width."""
 
-        self.callbacks['update_title_fontsize'](event.width)
+        self.callbacks['update_title_fontsize'](self.winfo_width())
 
     def update_wraplength(self, event):
         """Update wraplength based on widget width."""
 
-        self.text.config(wraplength=event.width)
+        self.text.config(wraplength=self.winfo_width()-20)
