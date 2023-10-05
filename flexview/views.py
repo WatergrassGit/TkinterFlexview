@@ -21,64 +21,91 @@ class MainView(ttk.Frame):
 
         self.callbacks = callbacks
 
-        # View title
-        self.title = ttk.Label(self, text="Responsive Window Design", style='title.TLabel')
+        # ---------- Scrollable Frame Setup ---------- #
+        # Create scrollable frame using canvas with adjacent vertical scrollbar
+        # This requires seting up a canvas widget with the interior frame
+        # attached using the .create_window method (cannot grid onto a canvas)
 
-        # View text
-        example_text = self.callbacks['get_text']()
-        self.text = ttk.Label(self, text=example_text, wraplength=300, justify='left', style='text.TLabel')
+        # Canvas setup
+        # highlightthickness = 0 is important to ensure canvas start appears at (0, 0)
+        self.canvas = tk.Canvas(self, bg='red', bd=0, highlightthickness=0)
+        self.v_scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.canvas.yview)
 
-        # View frame - holds two separate frames
-        self.media_frame = ttk.Frame(self, style='media.TFrame')
+        self.canvas.grid(row=0, column=0, sticky='nsew')
+        self.v_scrollbar.grid(row=0, column=1, sticky='ns')
 
-        # Allow horizontal expansion and contraction of objects in MainView widget
+        self.canvas.configure(yscrollcommand=self.v_scrollbar.set)
+        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion = self.canvas.bbox("all")))
+
+        # Interior scrollable frame setup
+        self.scrollable_frame = ttk.Frame(self.canvas, style='scrollframe.TFrame')
+        self.canvas_window = self.canvas.create_window((0,0), window=self.scrollable_frame, anchor="nw")
+
+        # Grid configuration
         self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
-        # Set up grid for mainview content
-        self.title.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
-        self.text.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
+        self.scrollable_frame.grid_columnconfigure(0, weight=1)
+        self.scrollable_frame.grid_rowconfigure(0, weight=1)
+
+        # ---------- Scrollable Frame Content ---------- #
+        self.title = ttk.Label(self.scrollable_frame, text="Responsive Window Design", style='title.TLabel')
+        example_text = self.callbacks['get_text']()
+        self.text = ttk.Label(self.scrollable_frame, text=example_text, justify='left', style='text.TLabel')
+        self.media_frame = ttk.Frame(self.scrollable_frame, style='media.TFrame')
+
+        self.title.grid(row=0, column=0, sticky='nsew')
+        self.text.grid(row=1, column=0, sticky='nsew')
         self.media_frame.grid(row=2, column=0, sticky='nsew')
 
-        # Add items to media_frame widget
+        self.media_frame.grid_columnconfigure(0, weight=1)
+        self.media_frame.grid_columnconfigure(1, weight=2)        
+
+        # ---------- Media Frame Content ---------- #
         self.initial_frame = ttk.Frame(self.media_frame, style='initial.TFrame', height=200)
-        self.initial_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
         self.final_frame = ttk.Frame(self.media_frame, style='final.TFrame', height=200)
+
+        self.initial_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
         self.final_frame.grid(row=0, column=1, sticky='nsew', padx=10, pady=10)
 
-        # set of relative widths for media_frame contents
-        self.media_frame.grid_columnconfigure(0, weight=1)
-        self.media_frame.grid_columnconfigure(1, weight=2)
-
-        # Set up events
-        self.bind("<Configure>", self.responsive_page)
-        self.title.bind("<Configure>", self.update_fontsize)
-        self.text.bind("<Configure>", self.update_wraplength)
+        # ---------- Event Bindings ---------- #
+        self.canvas.bind("<Configure>", self.responsive_page)
 
     def responsive_page(self, event):
-        # Regular / Wide view
-        if self.winfo_width() >= 600:
-            self.initial_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
-            self.final_frame.grid(row=0, column=1, sticky='nsew', padx=10, pady=10)
-            
-            # set of relative widths for media_frame contents
-            self.media_frame.grid_columnconfigure(0, weight=1)
+        """
+        Utilize canvas width to add responsive behavior to view.
+
+        This includes
+        * Responsive grid
+        * Responsive font size
+        * Responsive Label widget wraplength
+
+        :arguments
+        ----------
+        event : tkinter.Event
+            Collects information from a triggered event. In this case it
+            includes information about canvas width.
+        """
+
+        canvas_width = event.width  # can also use self.canvas.winfo_width()
+
+        # Adjust canvas_window width to allow scrollable frame width
+        # to expand to width of canvas
+        self.canvas.itemconfigure(self.canvas_window, width=canvas_width)
+
+        # DO NOT DELETE: Required to ensure scrollbars update properly
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+        # Adjust Grid as needed.
+        if canvas_width >= 600:  # Regular / Wide view
+            self.final_frame.grid(row=0, column=1)
             self.media_frame.grid_columnconfigure(1, weight=2)
-
-        # Mobile / Thin view
-        else:
-            self.initial_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
-            self.final_frame.grid(row=1, column=0, sticky='nsew', padx=10, pady=10)
-
-            # set of relative widths for media_frame contents
-            self.media_frame.grid_columnconfigure(0, weight=1)
+        else:  # Mobile / Thin view
+            self.final_frame.grid(row=1, column=0)
             self.media_frame.grid_columnconfigure(1, weight=0)
 
-    def update_fontsize(self, event):
-        """Update title font size based on widget width."""
+        # Update title font size based on widget width.
+        self.callbacks['update_title_fontsize'](canvas_width)
 
-        self.callbacks['update_title_fontsize'](self.winfo_width())
-
-    def update_wraplength(self, event):
-        """Update wraplength based on widget width."""
-
-        self.text.config(wraplength=self.winfo_width()-20)
+        # Update wraplength based on widget width.
+        self.text.config(wraplength=canvas_width)

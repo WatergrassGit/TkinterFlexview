@@ -13,12 +13,18 @@ class DataModel:
         self._long_text = new_data
 
     def get_text(self, fp):
-        """Get text data from text file"""
-
-        with open(fp, 'rb') as f:
-            try:
-                results = f.read()
-            except:
-                results = "Loading Error."
+        """
+        Get text data from text file
         
+        :arguments
+        ----------
+        fp: str
+            file path of file being loaded
+        """
+
+        try:
+            with open(fp, 'rb') as f:
+                results = f.read()
+        except FileNotFoundError:
+                results = "Loading Error - Text File Not Found."
         return results

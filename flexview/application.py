@@ -20,14 +20,14 @@ class Application(tk.Tk):
         }
 
         self.datamodel = DataModel()
-
         self.stylesheet = StyleSheet()
-
         self.mainview = v.MainView(self, self.callbacks)
+
+        # Setup Grid
         self.mainview.grid(row=0, column=0, sticky='nsew')
 
-        # configure columns to allow horizontal expanding and contracting of widgets in the view
         self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
     def get_text(self):
         """Used to request text data from the model."""
